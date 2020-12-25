@@ -59,7 +59,7 @@ namespace VorticeCore
             duplication.AcquireNextFrame(500, out var frameInfo, out var desktopResource);
 
             var tempTexture = desktopResource.QueryInterface<ID3D11Texture2D>();
-            device.ImmediateContext.CopyResource(tempTexture, currentFrame);
+            device.ImmediateContext.CopyResource(currentFrame, tempTexture);
 
             var dataBox = device.ImmediateContext.Map(currentFrame, 0, MapMode.Read, Vortice.Direct3D11.MapFlags.None);
 
