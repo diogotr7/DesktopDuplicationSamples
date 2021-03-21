@@ -68,12 +68,15 @@ namespace VorticeCore
 
             var dataBox = device.ImmediateContext.Map(currentFrame, 0, MapMode.Read, Vortice.Direct3D11.MapFlags.None);
 
+            int width = dataBox.RowPitch / 4;
+            int height = dataBox.DepthPitch / width / 4;
+
             var skInfo = new SKImageInfo
             {
                 ColorType = SKColorType.Bgra8888,
                 AlphaType = SKAlphaType.Premul,
-                Height = 1080,
-                Width = 1920
+                Width = width,
+                Height = height,
             };
             var skPixmap = new SKPixmap(skInfo, dataBox.DataPointer);
             var skBitmap = new SKBitmap();
