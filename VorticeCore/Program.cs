@@ -6,6 +6,7 @@ using System.Threading;
 using Vortice.Direct3D;
 using Vortice.Direct3D11;
 using Vortice.DXGI;
+using SkiaSharp;
 
 namespace VorticeCore
 {
@@ -24,11 +25,15 @@ namespace VorticeCore
         static void Main(string[] args)
         {
             var img = CaptureScreenFrames(0);
-            img.Save("bitmap.png", ImageFormat.Png);
-            Console.ReadLine();
+            using (var data = img.Encode(SKEncodedImageFormat.Png, 80))
+            using (var stream = System.IO.File.OpenWrite("skbitmap.png"))
+            {
+                // save the data to a stream
+                data.SaveTo(stream);
+            }
         }
 
-        public static Bitmap CaptureScreenFrames(int screenId)
+        public static SKBitmap CaptureScreenFrames(int screenId)
         {
             var factory = DXGI.CreateDXGIFactory1<IDXGIFactory1>();
             var adapter = factory.GetAdapter(0);
@@ -63,15 +68,17 @@ namespace VorticeCore
 
             var dataBox = device.ImmediateContext.Map(currentFrame, 0, MapMode.Read, Vortice.Direct3D11.MapFlags.None);
 
-            var frame = new Bitmap(1920, 1080, PixelFormat.Format32bppRgb);
-            var mapDest = frame.LockBits(new Rectangle(0, 0, 1920, 1080), ImageLockMode.WriteOnly, frame.PixelFormat);
-            for (int y = 0, sizeInBytesToCopy = 1920 * 4; y < 1080; y++)
+            var skInfo = new SKImageInfo
             {
-                MemoryHelpers.CopyMemory(mapDest.Scan0 + y * mapDest.Stride, dataBox.DataPointer + y * dataBox.RowPitch, sizeInBytesToCopy);
-            }
-            frame.UnlockBits(mapDest);
-
-            return frame;
+                ColorType = SKColorType.Bgra8888,
+                AlphaType = SKAlphaType.Premul,
+                Height = 1080,
+                Width = 1920
+            };
+            var skPixmap = new SKPixmap(skInfo, dataBox.DataPointer);
+            var skBitmap = new SKBitmap();
+            skBitmap.InstallPixels(skPixmap);
+            return skBitmap;
         }
     }
 }

@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Drawing.Common" Version="5.0.0" />
+    <PackageReference Include="SkiaSharp" Version="2.80.2" />
     <PackageReference Include="Vortice.Direct3D11" Version="1.8.41" />
   </ItemGroup>
 
